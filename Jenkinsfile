@@ -13,7 +13,7 @@ pipeline {
             steps {
                 // Navigate to the correct directory and run npm install
                 dir('/var/lib/jenkins/workspace/Spyd-main') {
-                    sh 'sudo npm install -g npm@11.0.0'
+                    sh 'sudo -S npm install -g npm@11.0.0'
                 }
             }
         }
