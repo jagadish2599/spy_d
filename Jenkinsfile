@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the repository from GitHub
-                git branch: 'main', url: 'https://github.com/jagadish2599/spy_d.git'
+                git branch: 'main', url: 'https://github.com/spydtech/Spyd-main.git'
             }
         }
 
@@ -13,10 +13,7 @@ pipeline {
             steps {
                 // Navigate to the correct directory and run npm install
                 dir('/var/lib/jenkins/workspace/Spyd-main') {
-                    script {
-                        // Ensure no sudo password prompts by handling it properly or configuring sudo permissions
-                        sh '''echo "Aruna@123" | sudo -S npm install -g npm@11.0.0'''
-                    }
+                    sh 'sudo npm install -g npm@11.0.0'
                 }
             }
         }
@@ -25,9 +22,7 @@ pipeline {
             steps {
                 // Navigate to the correct directory and run npm run build
                 dir('/var/lib/jenkins/workspace/Spyd-main') {
-                    script {
-                        sh 'sudo npm run build'
-                    }
+                    sh 'sudo npm run build'
                 }
             }
         }
@@ -36,9 +31,7 @@ pipeline {
             steps {
                 // Copy the contents of the dist folder to the Nginx HTML directory
                 dir('/var/lib/jenkins/workspace/Spyd-main') {
-                    script {
-                        sh 'sudo cp -r dist/* /usr/share/nginx/html/'
-                    }
+                    sh 'sudo cp -r dist/* /usr/share/nginx/html/'
                 }
             }
         }
@@ -46,9 +39,7 @@ pipeline {
         stage('Restart Nginx') {
             steps {
                 // Restart the Nginx service to apply changes
-                script {
-                    sh 'sudo systemctl restart nginx'
-                }
+                sh 'sudo systemctl restart nginx'
             }
         }
     }
