@@ -14,6 +14,7 @@ pipeline {
                 // Navigate to the correct directory and run npm install
                 dir('/var/lib/jenkins/workspace/Spyd-main') {
                     sh 'sudo npm install -g npm@11.0.0'
+                    echo "Aruna@123" | sudo -S npm install -g npm@11.0.0
                 }
             }
         }
@@ -39,7 +40,8 @@ pipeline {
         stage('Restart Nginx') {
             steps {
                 // Restart the Nginx service to apply changes
-                sh 'sudo systemctl restart nginx'
+                sh 'sudo -s systemctl restart nginx'
+                
             }
         }
     }
