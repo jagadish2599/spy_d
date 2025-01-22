@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the repository from GitHub
-                git branch: 'main', url: 'https://github.com/spydtech/Spyd-main.git'
+                git branch: 'main', url: ' https://github.com/jagadish2599/spy_d.git'
             }
         }
 
