@@ -12,7 +12,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Navigate to the correct directory and run npm install
-                dir('/var/lib/jenkins/workspace/Spyd-main/frontend') {
+                dir('/var/lib/jenkins/workspace/Spyd-main') {
                     sh 'sudo npm install -g npm@11.0.0'
                 }
             }
@@ -21,7 +21,7 @@ pipeline {
         stage('Build Project') {
             steps {
                 // Navigate to the correct directory and run npm run build
-                dir('/var/lib/jenkins/workspace/Spyd-main/frontend') {
+                dir('/var/lib/jenkins/workspace/Spyd-main') {
                     sh 'sudo npm run build'
                 }
             }
@@ -30,7 +30,7 @@ pipeline {
         stage('Copy to Nginx') {
             steps {
                 // Copy the contents of the dist folder to the Nginx HTML directory
-                dir('/var/lib/jenkins/workspace/Spyd-main/frontend') {
+                dir('/var/lib/jenkins/workspace/Spyd-main') {
                     sh 'sudo cp -r dist/* /usr/share/nginx/html/'
                 }
             }
