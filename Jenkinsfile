@@ -21,21 +21,21 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_USERNAME/react-vite-app .'
+                sh 'docker build -t $DOCKER_USERNAME/spyd-app .'
             }
         }
 
         stage('Push Image to DockerHub') {
             steps {
-                sh 'docker push $DOCKER_USERNAME/react-vite-app'
+                sh 'docker push $DOCKER_USERNAME/spyd-app'
             }
         }
 
         stage('Deploy Container') {
             steps {
-                sh 'docker stop react-vite-container || true'
-                sh 'docker rm react-vite-container || true'
-                sh 'docker run -d -p 80:80 --name react-vite-container $DOCKER_USERNAME/react-vite-app'
+                sh 'docker stop spyd-container || true'
+                sh 'docker rm spyd-container || true'
+                sh 'docker run -d -p 80:80 --name spyd-container $DOCKER_USERNAME/spyd-app'
             }
         }
     }
