@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "${DOCKER_USERNAME}/spyd-app:latest" 
+        IMAGE_NAME = "${DOCKER_USERNAME}/spyd-app:latest" // Correct image name format
         CONTAINER_NAME = "spyd-container"
     }
 
@@ -28,6 +28,10 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                // Debugging: Confirm the value of DOCKER_USERNAME and IMAGE_NAME
+                sh 'echo "DOCKER_USERNAME is $DOCKER_USERNAME"'
+                sh 'echo "IMAGE_NAME is $IMAGE_NAME"'
+
                 // Building the Docker image with the proper format and 'latest' tag
                 sh 'docker build -t $IMAGE_NAME .'
             }
