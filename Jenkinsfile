@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
-        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
-        IMAGE_NAME = "${DOCKER_USERNAME}/spyd-app"
-        CONTAINER_NAME = "spyd-container"
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
@@ -15,29 +8,34 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Login to DockerHub') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                script {
+                    withCredentials([string(credentialsId: 'DOCKERHUB_USERNAME', variable: 'DOCKER_USERNAME'),
+                                      string(credentialsId: 'DOCKERHUB_PASSWORD', variable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
+                }
             }
         }
 
-        stage('Login to DockerHub') {
+        stage('Build Docker Image') {
             steps {
-                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                sh 'docker build -t $DOCKER_USERNAME/react-vite-app .'
             }
         }
 
         stage('Push Image to DockerHub') {
             steps {
-                sh 'docker push $IMAGE_NAME'
+                sh 'docker push $DOCKER_USERNAME/react-vite-app'
             }
         }
 
         stage('Deploy Container') {
             steps {
-                sh 'docker stop $CONTAINER_NAME || true'
-                sh 'docker rm $CONTAINER_NAME || true'
-                sh 'docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME'
+                sh 'docker stop react-vite-container || true'
+                sh 'docker rm react-vite-container || true'
+                sh 'docker run -d -p 80:80 --name react-vite-container $DOCKER_USERNAME/react-vite-app'
             }
         }
     }
