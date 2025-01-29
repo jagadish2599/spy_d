@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USERNAME = credentials('jagadish250899')
-        DOCKER_PASSWORD = credentials('J@ggu#123')
+        DOCKER_USERNAME = credentials('DOCKER_USERNAME')
+        DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
         IMAGE_NAME = "${DOCKER_USERNAME}/spyd-app"
         CONTAINER_NAME = "spyd-container"
     }
