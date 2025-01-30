@@ -4,8 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = "jagadish250899/react-vite-app"
         CONTAINER_NAME = "react-vite-container"
-        DOCKER_USER = credentials('docker-username')
-        DOCKER_PASS = credentials('docker-password')
+        DOCKER_USER = credentials('DOCKERHUB_USERNAME')
+        DOCKER_PASS = credentials('DOCKERHUB_PASSWORD')
     }
 
     stages {
