@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "${DOCKER_USERNAME}/spyd-app:latest" // Correct image name format
-        CONTAINER_NAME = "spyd-container"
+        IMAGE_NAME = "jagadish250899/react-vite-app"
+        CONTAINER_NAME = "react-vite-container"
+        DOCKER_USER = credentials('docker-username')
+        DOCKER_PASS = credentials('docker-password')
     }
 
     stages {
@@ -13,58 +15,47 @@ pipeline {
             }
         }
 
-        stage('Login to DockerHub') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    // Using withCredentials to securely manage DockerHub credentials
-                    withCredentials([string(credentialsId: 'DOCKERHUB_USERNAME', variable: 'DOCKER_USERNAME'),
-                                      string(credentialsId: 'DOCKERHUB_PASSWORD', variable: 'DOCKER_PASSWORD')]) {
-                        // Login to DockerHub using credentials
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                    }
+                    sh "docker build -t $IMAGE_NAME ."
                 }
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Push to Docker Hub') {
             steps {
-                // Debugging: Confirm the value of DOCKER_USERNAME and IMAGE_NAME
-                sh 'echo "DOCKER_USERNAME is $DOCKER_USERNAME"'
-                sh 'echo "IMAGE_NAME is $IMAGE_NAME"'
-
-                // Building the Docker image with the proper format and 'latest' tag
-                sh 'docker build -t $IMAGE_NAME .'
+                script {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME
+                    """
+                }
             }
         }
 
-        stage('Push Image to DockerHub') {
+        stage('Deploy to EC2') {
             steps {
-                // Ensure the Docker image exists before pushing
-                sh 'docker images | grep "$IMAGE_NAME" || { echo "Image not found!"; exit 1; }'
-                
-                // Push the built Docker image to DockerHub
-                sh 'docker push $IMAGE_NAME'
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                // Stop and remove the existing container (if any)
-                sh 'docker stop $CONTAINER_NAME || true'
-                sh 'docker rm $CONTAINER_NAME || true'
-
-                // Deploy the Docker container with the image we just built and pushed
-                sh 'docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME'
+                sshagent(['ec2-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@your-ec2-ip << EOF
+                        docker stop $CONTAINER_NAME || true
+                        docker rm $CONTAINER_NAME || true
+                        docker pull $IMAGE_NAME
+                        docker run -d -p 80:80 --name $CONTAINER_NAME $IMAGE_NAME
+                        EOF
+                    """
+                }
             }
         }
     }
 
     post {
+        success {
+            echo 'Deployment successful!'
+        }
         failure {
-            // Clean up Docker resources on failure
-            echo 'Build or Deployment failed, cleaning up Docker containers and images.'
-            sh 'docker rm -f $CONTAINER_NAME || true'
-            sh 'docker rmi -f $IMAGE_NAME || true'
+            echo 'Deployment failed.'
         }
     }
 }
